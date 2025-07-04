@@ -28,3 +28,11 @@ jobs:
       - name: Run unit test
         working-directory: ./api
         run: npm test
+
+      - name: Docker login
+        run: echo "${{secrets.DOCKER_PASSWORD}}" | docker login -u "${{secrets.GITHUB_USERNAME}}" --password-stdin
+
+      - name: API image build and push to docker-hub
+        run: |
+          docker build -t ${{secrets.GITHUB_USERNAME}}/time-app-api-FBES_1_23_7_ru
+          docker push ${{secrets.GITHUB_USERNAME}}/time-app-api-FBES_1_23_7_ru
