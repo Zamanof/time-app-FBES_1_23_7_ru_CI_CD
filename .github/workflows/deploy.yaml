@@ -79,7 +79,7 @@ jobs:
           port: 22
 
           script: |
-            if [ ! -d "/app/time-app/.git"]; then
+            if [ ! -d "/app/time-app/.git"]; then 
             sudo git clone http://github.com/${{github.repository}} /app/time-app
             fi
 
