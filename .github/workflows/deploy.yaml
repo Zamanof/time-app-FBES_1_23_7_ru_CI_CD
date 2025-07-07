@@ -4,6 +4,10 @@ on:
   push:
     branches: ["main"]
 
+env:
+  REGISTRY: gchr.io
+  IMAGE_NAME: ${{github.repository}}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -58,3 +62,32 @@ jobs:
         run: |
           docker build -t ${{secrets.DOCKER_USERNAME}}/time-app-front-fbes1237ru ./frontend
           docker push ${{secrets.DOCKER_USERNAME}}/time-app-front-fbes1237ru
+
+  deploy:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloning repository
+        uses: actions/checkout@v4
+      
+      - name: Azure Debian VM Deploy
+        uses: appleboy/ssh-actions@v1
+        with:
+          host: ${{secrets.AZURE_VM_HOST}}
+          username: ${{secrets.AZURE_VM_USERNAME}}
+          key: ${{secrets.AZURE_VM_SSH_KEY}}
+          port: 22
+
+          script: |
+            if [ ! -d "/app/time-app/.git"]; then
+            sudo git clone http://github.com/${{github.repository}} /app.time-app
+            fi
+
+            cd /app/time-app
+            sudo git pull origin main
+
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d
+
+            docker image prune -f
