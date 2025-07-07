@@ -83,7 +83,7 @@ jobs:
               git clone https://github.com/${{ github.repository }} /app/time-app
             fi
                     
-            cd /app/time-app || exit 1
+            cd /app/time-app
             git pull origin main
                     
             docker compose pull
